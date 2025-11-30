@@ -38,7 +38,7 @@
 │  ┌──────────────────────▼───────────────────────────────┐  │
 │  │              API Routes (Backend)                     │  │
 │  │  - Hono.js Router                                    │  │
-│  │  - Authentication Middleware                         │  │
+│  │  - Authentication Proxy                         │  │
 │  │  - Business Logic                                    │  │
 │  │  - Validation Layer                                  │  │
 │  └──────────────────────┬───────────────────────────────┘  │
@@ -75,7 +75,7 @@
 - **Features Used:**
   - Server Actions (for mutations)
   - Route Handlers (API routes)
-  - Middleware (authentication)
+  - Proxy (authentication)
   - Layouts (shared UI)
   - Loading/Error states
 
@@ -116,13 +116,13 @@ app/
 #### Hono.js
 - **Version:** Latest (4.x)
 - **Integration:** Next.js API Routes
-- **Features:** Fast routing, Middleware, Type-safe RPC, Validation (Zod), JWT handling
+- **Features:** Fast routing, Proxy, Type-safe RPC, Validation (Zod), JWT handling
 
-#### Middleware Stack
-1. CORS Middleware
-2. Logger Middleware
-3. Auth Middleware (JWT verification)
-4. Validation Middleware (Zod)
+#### Proxy Stack
+1. CORS Proxy
+2. Logger Proxy
+3. Auth Proxy (JWT verification)
+4. Validation Proxy (Zod)
 5. Error Handler
 
 ---

@@ -10,7 +10,9 @@ export const users = pgTable('users', {
   fullName: varchar('full_name', { length: 255 }).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
-})
+}, (table) => [
+  index('users_email_idx').on(table.email),
+])
 
 export const tasks = pgTable('tasks', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -24,7 +26,11 @@ export const tasks = pgTable('tasks', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
   completedAt: timestamp('completed_at'),
-})
+}, (table) => [
+  index('tasks_user_id_idx').on(table.userId),
+  index('tasks_due_date_idx').on(table.dueDate),
+  index('tasks_status_idx').on(table.status),
+])
 
 export const tags = pgTable('tags', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -32,11 +38,14 @@ export const tags = pgTable('tags', {
   name: varchar('name', { length: 30 }).notNull(),
   color: varchar('color', { length: 7 }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-})
+}, (table) => [
+  index('tags_user_id_idx').on(table.userId),
+])
 
 export const taskTags = pgTable('task_tags', {
   taskId: uuid('task_id').references(() => tasks.id, { onDelete: 'cascade' }).notNull(),
   tagId: uuid('tag_id').references(() => tags.id, { onDelete: 'cascade' }).notNull(),
 }, (table) => [
   primaryKey({ columns: [table.taskId, table.tagId] }),
+  index('task_tags_tag_id_idx').on(table.tagId),
 ])

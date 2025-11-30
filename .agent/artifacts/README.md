@@ -256,7 +256,7 @@ todo-hono-20251120/
 │   └── validations/            # Zod schemas
 ├── server/
 │   ├── routes/                 # API route handlers
-│   └── middleware/             # Server middleware
+│   └── proxy/             # Server proxy
 ├── types/                      # TypeScript types
 ├── docker-compose.yml          # PostgreSQL setup
 ├── drizzle.config.ts           # Drizzle configuration

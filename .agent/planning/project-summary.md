@@ -258,7 +258,7 @@ todo-hono-20251120/
 │   └── auth/                 🔐 Auth utilities
 ├── server/
 │   ├── routes/               🛣️ API route handlers
-│   └── middleware/           🛡️ Auth, validation
+│   └── proxy/           🛡️ Auth, validation
 ├── docker-compose.yml        🐳 PostgreSQL setup
 └── drizzle.config.ts         ⚙️ ORM configuration
 ```

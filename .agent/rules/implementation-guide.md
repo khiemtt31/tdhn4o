@@ -131,7 +131,7 @@ todo-hono-20251120/
 │   ├── auth/
 │   │   ├── jwt.ts                    # JWT utilities
 │   │   ├── password.ts               # Password hashing
-│   │   └── middleware.ts             # Auth middleware
+│   │   └── proxy.ts             # Auth proxy
 │   ├── validations/
 │   │   ├── auth.ts                   # Auth schemas
 │   │   ├── task.ts                   # Task schemas
@@ -142,9 +142,9 @@ todo-hono-20251120/
 │   │   ├── auth.ts                   # Auth routes
 │   │   ├── tasks.ts                  # Task routes
 │   │   └── tags.ts                   # Tag routes
-│   ├── middleware/
-│   │   ├── auth.ts                   # Auth middleware
-│   │   ├── validation.ts             # Validation middleware
+│   ├── proxy/
+│   │   ├── auth.ts                   # Auth proxy
+│   │   ├── validation.ts             # Validation proxy
 │   │   └── error.ts                  # Error handler
 │   └── index.ts                      # Hono app setup
 ├── types/

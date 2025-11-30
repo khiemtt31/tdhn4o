@@ -130,11 +130,11 @@
 
 ---
 
-#### US-1.5: Authentication Middleware
+#### US-1.5: Authentication Proxy
 **Story:** As a developer, I need to protect routes so that only authenticated users can access them.
 
 **Tasks:**
-- [ ] Create JWT verification middleware
+- [ ] Create JWT verification proxy
 - [ ] Implement token validation logic
 - [ ] Create protected route wrapper
 - [ ] Add logout endpoint (`POST /api/auth/logout`)

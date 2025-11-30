@@ -44,7 +44,7 @@
 - [ ] Create task creation API endpoint (`POST /api/tasks`)
   - Create `server/routes/tasks.ts`
   - Implement POST handler
-  - Use auth middleware to get user ID
+  - Use auth proxy to get user ID
   - Return created task with ID
   
 - [ ] Implement Zod validation schema for tasks
