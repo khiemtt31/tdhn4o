@@ -1,0 +1,24 @@
+@use '../abstracts' as *;
+
+// Spacing utilities
+.mt-sm { margin-top: $spacing-sm; }
+.mt-md { margin-top: $spacing-md; }
+.mt-lg { margin-top: $spacing-lg; }
+
+.mb-sm { margin-bottom: $spacing-sm; }
+.mb-md { margin-bottom: $spacing-md; }
+.mb-lg { margin-bottom: $spacing-lg; }
+
+.p-sm { padding: $spacing-sm; }
+.p-md { padding: $spacing-md; }
+.p-lg { padding: $spacing-lg; }
+
+// Text utilities
+.text-primary { color: $color-primary-dark; }
+.text-secondary { color: $color-primary-medium; }
+.text-accent { color: $color-accent; }
+
+// Background utilities
+.bg-primary { background-color: $color-primary-dark; }
+.bg-secondary { background-color: $color-primary-medium; }
+.bg-accent { background-color: $color-accent; }

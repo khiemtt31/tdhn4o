@@ -1,0 +1,35 @@
+@use '../abstracts' as *;
+
+// Override shadcn/ui button component
+button[class*="bg-primary"] {
+  background-color: $color-primary-dark !important;
+
+  &:hover {
+    background-color: $color-primary-medium !important;
+  }
+}
+
+button[class*="bg-secondary"] {
+  background-color: $color-primary-medium !important;
+
+  &:hover {
+    background-color: $color-primary-light !important;
+  }
+}
+
+button[class*="bg-accent"] {
+  background-color: $color-accent !important;
+  color: $color-primary-dark !important;
+}
+
+// Override input focus states
+input:focus-visible,
+textarea:focus-visible {
+  border-color: $color-primary-light;
+  box-shadow: 0 0 0 3px rgba($color-primary-light, 0.2);
+}
+
+// Override card hover states
+[class*="card"]:hover {
+  border-color: $color-primary-light;
+}

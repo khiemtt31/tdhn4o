@@ -1,0 +1,41 @@
+@use '../abstracts' as *;
+
+.form-input {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  border: 1px solid $color-gray-300;
+  border-radius: $radius-md;
+  font-size: $font-size-base;
+  transition: all $transition-base;
+
+  &:focus {
+    @include focus-ring($color-primary-light);
+  }
+
+  &:disabled {
+    background-color: $color-gray-100;
+    cursor: not-allowed;
+  }
+
+  &.error {
+    border-color: #DC2626;
+
+    &:focus {
+      @include focus-ring(#DC2626);
+    }
+  }
+}
+
+.form-label {
+  display: block;
+  margin-bottom: $spacing-sm;
+  color: $color-primary-dark;
+  font-weight: $font-weight-medium;
+  font-size: $font-size-sm;
+}
+
+.form-error {
+  margin-top: $spacing-xs;
+  color: #DC2626;
+  font-size: $font-size-sm;
+}

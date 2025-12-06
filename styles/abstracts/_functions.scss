@@ -1,0 +1,22 @@
+@use 'sass:color';
+@use 'sass:math';
+
+// Lighten color
+@function lighten-color($color, $amount) {
+  @return color.adjust($color, $lightness: $amount);
+}
+
+// Darken color
+@function darken-color($color, $amount) {
+  @return color.adjust($color, $lightness: -$amount);
+}
+
+// Add alpha to color
+@function alpha($color, $opacity) {
+  @return color.adjust($color, $alpha: -1 + $opacity);
+}
+
+// Calculate spacing
+@function spacing($multiplier) {
+  @return calc(0.25rem * $multiplier);
+}
