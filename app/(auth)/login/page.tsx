@@ -11,20 +11,17 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Eye, EyeOff } from 'lucide-react'
+import { useUser } from '@/components/auth/user-context'
+import { loginSchema, LoginInput } from '@/lib/validations/auth'
 
-const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(1, 'Password is required'),
-  rememberMe: z.boolean().optional(),
-})
-
-type LoginForm = z.infer<typeof loginSchema>
+type LoginForm = LoginInput
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
+  const { login } = useUser()
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -39,32 +36,17 @@ export default function LoginPage() {
     setIsLoading(true)
     setError('')
 
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: data.email,
-          password: data.password,
-        }),
-      })
+    const result = await login(data.email, data.password, data.rememberMe)
 
-      const result = await response.json()
-
-      if (response.ok) {
-        router.push('/dashboard')
-      } else {
-        setError(result.error || 'Login failed')
-        form.setValue('password', '')
-        form.setFocus('email')
-      }
-    } catch (error) {
-      setError('An error occurred. Please try again.')
-    } finally {
-      setIsLoading(false)
+    if (result.success) {
+      router.push('/dashboard')
+    } else {
+      setError(result.error || 'Login failed')
+      form.setValue('password', '')
+      form.setFocus('email')
     }
+
+    setIsLoading(false)
   }
 
   return (

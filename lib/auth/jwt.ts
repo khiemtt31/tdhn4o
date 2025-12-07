@@ -13,8 +13,8 @@ export interface JWTPayload {
   fullName: string
 }
 
-export function signToken(payload: JWTPayload): string {
-  return (sign as any)(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN })
+export function signToken(payload: JWTPayload, expiresIn?: string): string {
+  return (sign as any)(payload, JWT_SECRET, { expiresIn: expiresIn || JWT_EXPIRES_IN })
 }
 
 export function verifyToken(token: string): JWTPayload | null {

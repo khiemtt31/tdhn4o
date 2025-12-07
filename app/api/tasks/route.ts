@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { tasks, taskTags, tags } from '@/lib/db/schema'
 import { eq, desc, and } from 'drizzle-orm'
-import { requireAuth } from '@/lib/auth/middleware'
+import { requireAuth } from '@/lib/auth/proxy'
 import { createTaskSchema, CreateTaskInput } from '@/lib/validations/task'
 
 // GET /api/tasks - List all tasks for authenticated user

@@ -1,45 +1,17 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { LogOut, User } from 'lucide-react'
-
-interface User {
-  id: string
-  email: string
-  fullName: string
-}
+import { useUser } from '@/components/auth/user-context'
 
 export function Header() {
-  const [user, setUser] = useState<User | null>(null)
+  const { user, logout } = useUser()
   const router = useRouter()
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await fetch('/api/auth/me')
-        if (response.ok) {
-          const data = await response.json()
-          setUser(data.user)
-        }
-      } catch (error) {
-        console.error('Failed to fetch user:', error)
-      }
-    }
-
-    fetchUser()
-  }, [])
-
   const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-      })
-      router.push('/login')
-    } catch (error) {
-      console.error('Logout error:', error)
-    }
+    await logout()
+    router.push('/login')
   }
 
   return (

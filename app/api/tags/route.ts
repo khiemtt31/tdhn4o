@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { tags } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
-import { requireAuth } from '@/lib/auth/middleware'
+import { requireAuth } from '@/lib/auth/proxy'
 
 interface CreateTagInput {
   name: string

@@ -14,5 +14,5 @@ export async function GET(request: NextRequest) {
       email: user.email,
       fullName: user.fullName,
     }
-  })
+  })  
 }

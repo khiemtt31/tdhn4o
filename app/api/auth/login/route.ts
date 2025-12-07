@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { email, password } = validation.data
+    const { email, password, rememberMe } = validation.data
 
     // Find user
     const user = await db
@@ -44,12 +44,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Determine expiration based on rememberMe
+    const expiresIn = rememberMe ? '30d' : '7d'
+    const maxAge = rememberMe ? 30 * 24 * 60 * 60 : 7 * 24 * 60 * 60 // 30 days or 7 days
+
     // Generate JWT token
     const token = signToken({
       userId: user[0].id,
       email: user[0].email,
       fullName: user[0].fullName,
-    })
+    }, expiresIn)
 
     // Set HTTP-only cookie
     const response = NextResponse.json({
@@ -65,7 +69,7 @@ export async function POST(request: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60, // 7 days
+      maxAge,
       path: '/',
     })
 
