@@ -1,5 +1,20 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Features
+
+### Sprint 1: Authentication
+- User registration and login
+- JWT-based authentication
+- Protected routes
+
+### Sprint 2: Task Management
+- Create, read, update, delete tasks
+- Task filtering by status (todo, in progress, completed)
+- Task prioritization (low, medium, high)
+- Start and due dates
+- Tag system for organizing tasks
+- Responsive UI with modern design
+
 ## Getting Started
 
 First, run the development server:
