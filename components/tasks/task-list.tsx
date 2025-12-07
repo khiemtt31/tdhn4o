@@ -35,17 +35,17 @@ export function TaskList({ onEdit, onDelete }: TaskListProps) {
 
   const getStatusColor = (status: TaskStatus) => {
     switch (status) {
-      case 'todo': return 'bg-gray-100 text-gray-800'
-      case 'in_progress': return 'bg-blue-100 text-blue-800'
-      case 'completed': return 'bg-green-100 text-green-800'
+      case 'todo': return 'tag--status-todo'
+      case 'in_progress': return 'tag--status-in_progress'
+      case 'completed': return 'tag--status-completed'
     }
   }
 
   const getPriorityColor = (priority: TaskPriority) => {
     switch (priority) {
-      case 'low': return 'bg-green-100 text-green-800'
-      case 'medium': return 'bg-yellow-100 text-yellow-800'
-      case 'high': return 'bg-red-100 text-red-800'
+      case 'low': return 'tag--priority-low'
+      case 'medium': return 'tag--priority-medium'
+      case 'high': return 'tag--priority-high'
     }
   }
 
@@ -84,21 +84,21 @@ export function TaskList({ onEdit, onDelete }: TaskListProps) {
 
       <div className="grid gap-4">
         {tasks.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-muted-foreground">
             <p>No tasks found.</p>
             <p className="text-sm">Create your first task to get started.</p>
           </div>
         ) : (
           tasks.map((task) => (
-            <div key={task.id} className="border rounded-lg p-4 shadow-sm">
+            <div key={task.id} className="border border-border rounded-lg p-4 shadow-sm">
               <div className="mb-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">{task.title}</h3>
+                  <h3 className="text-lg font-semibold text-foreground">{task.title}</h3>
                   <div className="flex gap-2">
-                    <span className={`px-2 py-1 rounded text-xs ${getStatusColor(task.status)}`}>
+                    <span className={`px-2 py-1 rounded text-xs border ${getStatusColor(task.status)}`}>
                       {task.status.replace('_', ' ')}
                     </span>
-                    <span className={`px-2 py-1 rounded text-xs ${getPriorityColor(task.priority)}`}>
+                    <span className={`px-2 py-1 rounded text-xs border ${getPriorityColor(task.priority)}`}>
                       {task.priority}
                     </span>
                   </div>
@@ -106,12 +106,12 @@ export function TaskList({ onEdit, onDelete }: TaskListProps) {
               </div>
               <div>
                 {task.description && (
-                  <p className="text-sm text-gray-600 mb-2">{task.description}</p>
+                  <p className="text-sm text-muted-foreground mb-2">{task.description}</p>
                 )}
                 <div className="flex items-center justify-between">
                   <div className="flex gap-2">
                     {task.tags.map((tag) => (
-                      <span key={tag.id} className="px-2 py-1 border rounded text-xs" style={{ borderColor: tag.color }}>
+                      <span key={tag.id} className="px-2 py-1 border rounded text-xs text-foreground" style={{ borderColor: tag.color }}>
                         {tag.name}
                       </span>
                     ))}
@@ -130,7 +130,7 @@ export function TaskList({ onEdit, onDelete }: TaskListProps) {
                   </div>
                 </div>
                 {task.dueDate && (
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-xs text-muted-foreground mt-2">
                     Due: {new Date(task.dueDate).toLocaleDateString()}
                   </p>
                 )}

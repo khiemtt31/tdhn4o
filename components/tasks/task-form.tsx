@@ -102,7 +102,7 @@ export function TaskForm({ open, onOpenChange, onSubmit, task, mode }: TaskFormP
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-heading">
             {mode === 'create' ? 'Create New Task' : 'Edit Task'}
           </DialogTitle>
         </DialogHeader>
@@ -262,7 +262,7 @@ export function TaskForm({ open, onOpenChange, onSubmit, task, mode }: TaskFormP
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit">
+              <Button type="submit" variant="default">
                 {mode === 'create' ? 'Create Task' : 'Update Task'}
               </Button>
             </DialogFooter>
