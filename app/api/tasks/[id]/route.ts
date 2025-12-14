@@ -6,9 +6,9 @@ import { requireAuth } from '@/lib/auth/proxy'
 import { updateTaskSchema } from '@/lib/validations/task'
 
 // GET /api/tasks/[id] - Get a single task
-async function getTask(user: any, request: NextRequest, { params }: { params: { id: string } }) {
+async function getTask(user: any, request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const taskId = params.id
+    const { id: taskId } = await params
 
     const taskData = await db
       .select({
@@ -67,9 +67,9 @@ async function getTask(user: any, request: NextRequest, { params }: { params: { 
 }
 
 // PATCH /api/tasks/[id] - Update a task
-async function updateTask(user: any, request: NextRequest, { params }: { params: { id: string } }) {
+async function updateTask(user: any, request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const taskId = params.id
+    const { id: taskId } = await params
     const body = await request.json()
 
     // Validate input
@@ -151,9 +151,9 @@ async function updateTask(user: any, request: NextRequest, { params }: { params:
 }
 
 // DELETE /api/tasks/[id] - Delete a task
-async function deleteTask(user: any, request: NextRequest, { params }: { params: { id: string } }) {
+async function deleteTask(user: any, request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const taskId = params.id
+    const { id: taskId } = await params
 
     // Check if task exists and belongs to user
     const existingTask = await db
@@ -184,14 +184,14 @@ async function deleteTask(user: any, request: NextRequest, { params }: { params:
   }
 }
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   return requireAuth((user, req) => getTask(user, req, { params }))(request)
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   return requireAuth((user, req) => updateTask(user, req, { params }))(request)
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   return requireAuth((user, req) => deleteTask(user, req, { params }))(request)
 }

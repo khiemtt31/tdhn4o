@@ -3,8 +3,10 @@
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useQuery } from '@tanstack/react-query'
 import { CreateTaskInput, Task, Tag } from '@/types/task'
 import { createTaskSchema } from '@/lib/validations/task'
+import { QUERY_KEYS } from '@/lib/query-keys'
 import {
   Dialog,
   DialogContent,
@@ -30,6 +32,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
+import { TagInput } from '@/components/tags/tag-input'
 
 interface TaskFormProps {
   open: boolean
@@ -40,8 +43,18 @@ interface TaskFormProps {
 }
 
 export function TaskForm({ open, onOpenChange, onSubmit, task, mode }: TaskFormProps) {
-  const [tags, setTags] = useState<Tag[]>([])
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
+
+  // Fetch tags using React Query
+  const { data: tags = [] } = useQuery({
+    queryKey: QUERY_KEYS.tags,
+    queryFn: async () => {
+      const response = await fetch('/api/tags')
+      if (!response.ok) throw new Error('Failed to fetch tags')
+      return response.json()
+    },
+    enabled: open, // Only fetch when form is open
+  })
 
   const form = useForm<CreateTaskInput>({
     resolver: zodResolver(createTaskSchema),
@@ -66,7 +79,6 @@ export function TaskForm({ open, onOpenChange, onSubmit, task, mode }: TaskFormP
 
   useEffect(() => {
     if (open) {
-      fetchTags()
       if (task) {
         setSelectedTagIds(task.tags.map(t => t.id))
       } else {
@@ -74,18 +86,6 @@ export function TaskForm({ open, onOpenChange, onSubmit, task, mode }: TaskFormP
       }
     }
   }, [open, task])
-
-  const fetchTags = async () => {
-    try {
-      const response = await fetch('/api/tags')
-      if (response.ok) {
-        const data = await response.json()
-        setTags(data)
-      }
-    } catch (error) {
-      console.error('Failed to fetch tags:', error)
-    }
-  }
 
   const handleSubmit = async (data: CreateTaskInput) => {
     try {
@@ -234,25 +234,11 @@ export function TaskForm({ open, onOpenChange, onSubmit, task, mode }: TaskFormP
               render={() => (
                 <FormItem>
                   <FormLabel>Tags</FormLabel>
-                  <div className="flex flex-wrap gap-2">
-                    {tags.map((tag) => (
-                      <label key={tag.id} className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          checked={selectedTagIds.includes(tag.id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedTagIds([...selectedTagIds, tag.id])
-                            } else {
-                              setSelectedTagIds(selectedTagIds.filter(id => id !== tag.id))
-                            }
-                          }}
-                          className="rounded"
-                        />
-                        <span className="text-sm">{tag.name}</span>
-                      </label>
-                    ))}
-                  </div>
+                  <TagInput
+                    selectedTagIds={selectedTagIds}
+                    onTagsChange={setSelectedTagIds}
+                    placeholder="Add tags to categorize your task"
+                  />
                   <FormMessage />
                 </FormItem>
               )}

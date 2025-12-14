@@ -5,6 +5,7 @@ export interface Tag {
   id: string
   name: string
   color?: string
+  taskCount: number
 }
 
 export interface Task {
@@ -32,3 +33,14 @@ export interface CreateTaskInput {
 }
 
 export interface UpdateTaskInput extends Partial<CreateTaskInput> {}
+
+export interface TaskFilters {
+  status?: string
+  tagIds?: string[]
+  search?: string
+  sortBy?: string
+  sortOrder?: string
+  dateFilter?: string
+  startDate?: string
+  endDate?: string
+}

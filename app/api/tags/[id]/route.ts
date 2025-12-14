@@ -3,106 +3,7 @@ import { db } from '@/lib/db'
 import { tags, taskTags } from '@/lib/db/schema'
 import { eq, ilike, sql } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth/proxy'
-import { createTagSchema, CreateTagInput } from '@/lib/validations/tag'
-
-// Predefined color palette for tags
-const TAG_COLORS = [
-  '#3B82F6', // Blue
-  '#EF4444', // Red
-  '#10B981', // Green
-  '#F59E0B', // Yellow
-  '#8B5CF6', // Purple
-  '#F97316', // Orange
-  '#06B6D4', // Cyan
-  '#84CC16', // Lime
-  '#EC4899', // Pink
-  '#6B7280', // Gray
-]
-
-// Generate a random color for new tags
-function generateTagColor(): string {
-  return TAG_COLORS[Math.floor(Math.random() * TAG_COLORS.length)]
-}
-
-// GET /api/tags - List all tags for authenticated user
-async function getTags(user: any, request: NextRequest) {
-  try {
-    const userTags = await db
-      .select({
-        id: tags.id,
-        name: tags.name,
-        color: tags.color,
-        createdAt: tags.createdAt,
-        taskCount: sql<number>`count(${tags.id})`.as('task_count'),
-      })
-      .from(tags)
-      .leftJoin(taskTags, eq(tags.id, taskTags.tagId))
-      .where(eq(tags.userId, user.userId))
-      .groupBy(tags.id)
-      .orderBy(tags.name)
-
-    return NextResponse.json(userTags)
-  } catch (error) {
-    console.error('Get tags error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
-  }
-}
-
-// POST /api/tags - Create a new tag
-async function createTag(user: any, request: NextRequest) {
-  try {
-    const body = await request.json()
-
-    // Validate input
-    const validation = createTagSchema.safeParse(body)
-    if (!validation.success) {
-      return NextResponse.json(
-        { error: 'Validation failed', details: validation.error.issues },
-        { status: 400 }
-      )
-    }
-
-    const { name, color } = validation.data
-
-    // Check for existing tag (case-insensitive)
-    const existingTag = await db
-      .select()
-      .from(tags)
-      .where(eq(tags.userId, user.userId))
-      .where(ilike(tags.name, name))
-
-    if (existingTag.length > 0) {
-      return NextResponse.json(
-        { error: 'Tag with this name already exists', existingTag: existingTag[0] },
-        { status: 409 }
-      )
-    }
-
-    // Generate color if not provided
-    const tagColor = color || generateTagColor()
-
-    // Create tag
-    const newTag = await db
-      .insert(tags)
-      .values({
-        userId: user.userId,
-        name: name.trim(),
-        color: tagColor,
-      })
-      .returning()
-
-    return NextResponse.json(newTag[0], { status: 201 })
-  } catch (error) {
-    console.error('Create tag error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
-  }
-}
+import { createTagSchema } from '@/lib/validations/tag'
 
 // PATCH /api/tags/:id - Update a tag
 async function updateTag(user: any, request: NextRequest, tagId: string) {
@@ -204,5 +105,5 @@ async function deleteTag(user: any, request: NextRequest, tagId: string) {
   }
 }
 
-export const GET = requireAuth(getTags)
-export const POST = requireAuth(createTag)
+export const PATCH = requireAuth(updateTag)
+export const DELETE = requireAuth(deleteTag)

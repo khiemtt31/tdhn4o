@@ -1,38 +1,23 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { Task, TaskStatus, TaskPriority } from '@/types/task'
 import { Button } from '@/components/ui/button'
+import { CheckCircle, Circle } from 'lucide-react'
+import { TagBadge } from '@/components/tags/tag-badge'
 
 interface TaskListProps {
+  tasks: Task[]
+  loading: boolean
+  filter: TaskStatus | 'all'
+  onFilterChange: (filter: TaskStatus | 'all') => void
   onEdit?: (task: Task) => void
   onDelete?: (taskId: string) => void
+  onStatusToggle?: (taskId: string, newStatus: TaskStatus) => void
+  viewMode?: 'list' | 'grid' | 'compact'
+  onViewModeChange?: (viewMode: 'list' | 'grid' | 'compact') => void
 }
 
-export function TaskList({ onEdit, onDelete }: TaskListProps) {
-  const [tasks, setTasks] = useState<Task[]>([])
-  const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState<TaskStatus | 'all'>('all')
-
-  const fetchTasks = async (status?: TaskStatus) => {
-    try {
-      const url = status ? `/api/tasks?status=${status}` : '/api/tasks'
-      const response = await fetch(url)
-      if (response.ok) {
-        const data = await response.json()
-        setTasks(data)
-      }
-    } catch (error) {
-      console.error('Failed to fetch tasks:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchTasks(filter === 'all' ? undefined : filter)
-  }, [filter])
-
+export function TaskList({ tasks, loading, filter, onFilterChange, onEdit, onDelete, onStatusToggle, viewMode = 'list', onViewModeChange }: TaskListProps) {
   const getStatusColor = (status: TaskStatus) => {
     switch (status) {
       case 'todo': return 'tag--status-todo'
@@ -55,45 +40,65 @@ export function TaskList({ onEdit, onDelete }: TaskListProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-2">
-        <Button
-          variant={filter === 'all' ? 'default' : 'outline'}
-          onClick={() => setFilter('all')}
-        >
-          All
-        </Button>
-        <Button
-          variant={filter === 'todo' ? 'default' : 'outline'}
-          onClick={() => setFilter('todo')}
-        >
-          To Do
-        </Button>
-        <Button
-          variant={filter === 'in_progress' ? 'default' : 'outline'}
-          onClick={() => setFilter('in_progress')}
-        >
-          In Progress
-        </Button>
-        <Button
-          variant={filter === 'completed' ? 'default' : 'outline'}
-          onClick={() => setFilter('completed')}
-        >
-          Completed
-        </Button>
-      </div>
+      {/* View Mode Controls */}
+      {onViewModeChange && (
+        <div className="flex gap-2 justify-end">
+          <Button
+            variant={viewMode === 'list' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => onViewModeChange('list')}
+          >
+            List
+          </Button>
+          <Button
+            variant={viewMode === 'grid' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => onViewModeChange('grid')}
+          >
+            Grid
+          </Button>
+          <Button
+            variant={viewMode === 'compact' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => onViewModeChange('compact')}
+          >
+            Compact
+          </Button>
+        </div>
+      )}
 
-      <div className="grid gap-4">
+      <div className={`grid gap-4 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : ''}`}>
         {tasks.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <p>No tasks found.</p>
             <p className="text-sm">Create your first task to get started.</p>
           </div>
         ) : (
-          tasks.map((task) => (
-            <div key={task.id} className="border border-border rounded-lg p-4 shadow-sm">
+          tasks.map((task) => {
+          const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && task.status !== 'completed'
+          return (
+            <div key={task.id} className={`border border-border rounded-lg p-4 shadow-sm ${isOverdue ? 'border-red-300 bg-red-50' : ''}`}>
               <div className="mb-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-foreground">{task.title}</h3>
+                  <div className="flex items-center gap-3">
+                    {onStatusToggle && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="p-0 h-6 w-6"
+                        onClick={() => onStatusToggle(task.id, task.status === 'completed' ? 'todo' : 'completed')}
+                      >
+                        {task.status === 'completed' ? (
+                          <CheckCircle className="h-5 w-5 text-green-600" />
+                        ) : (
+                          <Circle className="h-5 w-5 text-muted-foreground" />
+                        )}
+                      </Button>
+                    )}
+                    <h3 className={`text-lg font-semibold ${task.status === 'completed' ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                      {task.title}
+                    </h3>
+                  </div>
                   <div className="flex gap-2">
                     <span className={`px-2 py-1 rounded text-xs border ${getStatusColor(task.status)}`}>
                       {task.status.replace('_', ' ')}
@@ -111,9 +116,7 @@ export function TaskList({ onEdit, onDelete }: TaskListProps) {
                 <div className="flex items-center justify-between">
                   <div className="flex gap-2">
                     {task.tags.map((tag) => (
-                      <span key={tag.id} className="px-2 py-1 border rounded text-xs text-foreground" style={{ borderColor: tag.color }}>
-                        {tag.name}
-                      </span>
+                      <TagBadge key={tag.id} tag={tag} size="sm" />
                     ))}
                   </div>
                   <div className="flex gap-2">
@@ -136,7 +139,8 @@ export function TaskList({ onEdit, onDelete }: TaskListProps) {
                 )}
               </div>
             </div>
-          ))
+          )
+        })
         )}
       </div>
     </div>

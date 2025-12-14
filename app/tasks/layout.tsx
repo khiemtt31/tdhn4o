@@ -2,7 +2,7 @@ import { Header } from '@/components/layout/header'
 import { Sidebar } from '@/components/layout/sidebar'
 import { AuthGuard } from '@/components/auth/auth-guard'
 
-export default function DashboardLayout({
+export default function TasksLayout({
   children,
 }: {
   children: React.ReactNode
@@ -11,7 +11,7 @@ export default function DashboardLayout({
     <AuthGuard>
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="flex min-h-screen">
+        <div className="flex">
           <Sidebar />
           <main className="flex-1 py-6 sm:px-6 lg:px-8">
             {children}

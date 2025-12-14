@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { tasks, taskTags, tags } from '@/lib/db/schema'
-import { eq, desc, and } from 'drizzle-orm'
+import { eq, desc, and, or, ilike, sql, asc } from 'drizzle-orm'
 import { requireAuth } from '@/lib/auth/proxy'
 import { createTaskSchema, CreateTaskInput } from '@/lib/validations/task'
 
@@ -10,11 +10,91 @@ async function getTasks(user: any, request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
+    const tagIds = searchParams.getAll('tagId')
+    const search = searchParams.get('search')
+    const sortBy = searchParams.get('sortBy') || 'createdAt'
+    const sortOrder = searchParams.get('sortOrder') || 'desc'
+    const dateFilter = searchParams.get('dateFilter')
+    const customStartDate = searchParams.get('startDate')
+    const customEndDate = searchParams.get('endDate')
 
     let whereCondition: any = eq(tasks.userId, user.userId)
 
+    // Status filter
     if (status && ['todo', 'in_progress', 'completed'].includes(status)) {
-      whereCondition = and(eq(tasks.userId, user.userId), eq(tasks.status, status as any))
+      whereCondition = and(whereCondition, eq(tasks.status, status as any))
+    }
+
+    // Tag filter
+    if (tagIds.length > 0) {
+      // For tag filtering, we need tasks that have ANY of the specified tags
+      whereCondition = and(
+        whereCondition,
+        sql`${tasks.id} IN (
+          SELECT ${taskTags.taskId}
+          FROM ${taskTags}
+          WHERE ${taskTags.tagId} IN (${tagIds.map(id => `'${id}'`).join(', ')})
+        )`
+      )
+    }
+
+    // Search filter
+    if (search) {
+      whereCondition = and(
+        whereCondition,
+        or(
+          ilike(tasks.title, `%${search}%`),
+          ilike(tasks.description, `%${search}%`)
+        )
+      )
+    }
+
+    // Date filter
+    const now = new Date()
+    if (dateFilter === 'today') {
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      const tomorrow = new Date(today)
+      tomorrow.setDate(tomorrow.getDate() + 1)
+      whereCondition = and(
+        whereCondition,
+        sql`${tasks.dueDate} >= ${today.toISOString()} AND ${tasks.dueDate} < ${tomorrow.toISOString()}`
+      )
+    } else if (dateFilter === 'upcoming') {
+      const nextWeek = new Date(now)
+      nextWeek.setDate(nextWeek.getDate() + 7)
+      whereCondition = and(
+        whereCondition,
+        sql`${tasks.dueDate} >= ${now.toISOString()} AND ${tasks.dueDate} <= ${nextWeek.toISOString()}`
+      )
+    } else if (dateFilter === 'overdue') {
+      whereCondition = and(
+        whereCondition,
+        sql`${tasks.dueDate} < ${now.toISOString()}`
+      )
+    } else if (dateFilter === 'custom' && customStartDate && customEndDate) {
+      whereCondition = and(
+        whereCondition,
+        sql`${tasks.dueDate} >= ${customStartDate} AND ${tasks.dueDate} <= ${customEndDate}`
+      )
+    }
+
+    // Build order by clause
+    let orderByClause: any
+    switch (sortBy) {
+      case 'dueDate':
+        orderByClause = sortOrder === 'asc' ? asc(tasks.dueDate) : desc(tasks.dueDate)
+        break
+      case 'priority':
+        orderByClause = sortOrder === 'asc' ? asc(tasks.priority) : desc(tasks.priority)
+        break
+      case 'status':
+        orderByClause = sortOrder === 'asc' ? asc(tasks.status) : desc(tasks.status)
+        break
+      case 'title':
+        orderByClause = sortOrder === 'asc' ? asc(tasks.title) : desc(tasks.title)
+        break
+      default:
+        orderByClause = sortOrder === 'asc' ? asc(tasks.createdAt) : desc(tasks.createdAt)
     }
 
     const userTasks = await db
@@ -39,7 +119,7 @@ async function getTasks(user: any, request: NextRequest) {
       .leftJoin(taskTags, eq(tasks.id, taskTags.taskId))
       .leftJoin(tags, eq(taskTags.tagId, tags.id))
       .where(whereCondition)
-      .orderBy(desc(tasks.createdAt))
+      .orderBy(orderByClause)
 
     // Group tags by task
     const tasksWithTags = userTasks.reduce((acc, row) => {
